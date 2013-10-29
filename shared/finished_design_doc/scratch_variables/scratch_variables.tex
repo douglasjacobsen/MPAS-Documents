@@ -34,6 +34,13 @@ implementations have yet been determined for core/shared code, scratch
 varaibles are created to allow heap defined arrays that can be public to
 multiple threads.
 
+\section{Requirement: Non-Persistent Variable Structures}
+Date last modified: 10/29/2013 \\
+Contributors: (Doug Jacobsen) \\
+
+To allow more robust definitions within Registry.xml, var\_struct constructs
+must be allowed to be defined as scratch.
+
 %-----------------------------------------------------------------------
 
 \chapter{Design and Implementation}
@@ -95,6 +102,53 @@ it will not be allocated when it has access to it.
 
 %-----------------------------------------------------------------------
 
+
+\section{Implementation: Non-Persistent Variable Structures}
+Date last modified: 10/29/2013 \\
+Contributors: (Doug Jacobsen) \\
+
+Within the actual MPAS code, we can't have variable groups that are not
+allocated. If a variable group is not allocated, none of the variables that are
+defined within that variable structure are allocated either, and would likely
+cause many problems when passing around specific variables.
+
+The actual definition of scratch variable groups doesn't modify the
+allocation/deallocation use of the group, it stimply sets the default
+persistence for all variables contained within the variable group.
+
+The default persistence if none is specified is persistent, and this is true
+for every construct within Registry.xml. Below is an example of how to modify
+this default within a particular variable group.
+
+\begin{lstlisting}
+<var_struct name=``scratch'' time_levs=``0'' persistence=``scratch''>
+   <var name=``test1'' dimensions=``...'' ... />
+   <var name=``test2'' dimensions=``...'' ... />
+   <var name=``test3'' dimensions=``...'' ... />
+</var_struct>
+\end{lstlisting}
+
+Based on the definition of scratch variable groups, the above definition is equivalent to:
+\begin{lstlisting}
+<var_struct name=``scratch'' time_levs=``0''>
+   <var name=``test1'' dimensions=``...'' persistence=``scratch'' ... />
+   <var name=``test2'' dimensions=``...'' persistence=``scratch'' ... />
+   <var name=``test3'' dimensions=``...'' persistence=``scratch'' ... />
+</var_struct>
+\end{lstlisting}
+
+Any definition of persistence at a level lower than the var\_struct level will override the default persistence for the particular construct.
+
+For example:
+\begin{lstlisting}
+<var_struct name=``scratch'' time_levs=``0'' persistence=``scratch''>
+   <var name=``test1'' dimensions=``...'' persistence=``persistent'' ... />
+   <var name=``test2'' dimensions=``...'' ... />
+   <var name=``test3'' dimensions=``...'' ... />
+</var_struct>
+\end{lstlisting}
+
+Will create scratch variables test2, and test3, and a persistent variable test1.
 \chapter{Use Guidelines}
 
 Scratch variables are intended to be used as temporary storage space. The
