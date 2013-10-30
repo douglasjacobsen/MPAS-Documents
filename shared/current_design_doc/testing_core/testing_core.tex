@@ -1,0 +1,85 @@
+\documentclass[11pt]{report}
+
+\usepackage{epsf,amsmath,amsfonts}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+
+\setlength{\topmargin}{0in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{9.0in}
+\setlength{\textwidth}{6.0in}
+\setlength{\evensidemargin}{0.25in}
+\setlength{\oddsidemargin}{0.25in}
+
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{cyan}{rgb}{0.0,0.6,0.6}
+
+\lstset{
+	basicstyle=\ttfamily,
+		columns=fullflexible,
+		showstringspaces=false,
+		commentstyle=\color{gray}\upshape
+}
+
+\lstdefinelanguage{XML}
+{
+	morestring=[b]",
+	morestring=[s]{>}{<},
+	morecomment=[s]{<?}{?>},
+	stringstyle=\color{black},
+	identifierstyle=\color{darkblue},
+	keywordstyle=\color{cyan},
+	morekeywords={xmlns,version,type,name,type,dimensions,name\_in\_code,units,description,template,streams,persistence}% list your attributes here
+}
+
+\begin{document}
+
+\title{Framework Testing Core: \\
+Requirements and Design}
+\author{MPAS Development Team}
+
+\maketitle
+\tableofcontents
+
+%-----------------------------------------------------------------------
+
+\chapter{Summary}
+
+Presently MPAS lacks a robust testing mechanism for a lot of the capabilities
+that framework and operators provide. This document introduces the concept of a
+framework testing core. This core is intended to function only based on the
+union of all of the other cores (i.e. things that are deemed required by all
+other cores). The purpose of this core is to exercise shared parts of MPAS, and
+provide reassuance to the developer/user community that those parts of MPAS are
+functioning properly.
+
+%-----------------------------------------------------------------------
+
+\chapter{Requirements}
+
+To support the growing framework and operators code bases within MPAS, the
+framework testing core capabilities in MPAS must meet the following
+requirements.
+
+\begin{enumerate}
+
+\item MPAS must provide a framework testing core that may run using any mesh
+	  that can be input into any MPAS core. This means the core must only take as
+	  input variables which are required by all other cores.
+
+\item MPAS must provide testing routines to exercise the shared parts of the
+      MPAS code base. Namely framework and operators.
+
+\item Tests must be built in such a way that there is a clear pass/fail metric.
+
+\end{enumerate}                                                             
+
+
+%-----------------------------------------------------------------------
+
+\chapter{Design and Implementation}
+\chapter{Testing}
+\end{document}
