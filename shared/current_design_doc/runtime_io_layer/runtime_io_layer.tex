@@ -57,15 +57,6 @@ streams to all be housed under the Registry files.
 
 Details related to both of these will be in the coming sections.
 
-%figure template
-%\begin{figure}
-%  \center{\includegraphics[width=14cm]{./Figure1.pdf}}
-%  \caption{A graphical representation of the discrete boundary.}
-%  \label{Figure1}
-%\end{figure} 
-
-
-
 
 %-----------------------------------------------------------------------
 
@@ -82,16 +73,14 @@ The run-time configurable I/O layer should provide the ability for modification
 of I/O streams at run time, as opposed to the current structure where it's at
 compile time.
 
-\subsection{Requirement: Ability to create new streams at build time}
+\subsection{Requirement: Ability to create new streams}
 Date last modified: 02/15/13 \\
 Contributors: (Doug Jacobsen) \\
 
 The new I/O layer should make the creation of a new stream available to a
 developer/user. Although it would be preferred to have stream creation possible
-at run-time, it's currently difficult to see an easy way to do this. \\
-
-This requirement also means modifying Registry to create streams, which in turn
-means defining a standard for stream definitions.
+at run-time, it is not specified when during the build/run time streams need to
+be defined. Simply that they need to be able to be defined at some point.
 
 \subsection{Requirement: Ease of use for users}
 Date last modified: 02/15/13 \\
@@ -176,21 +165,21 @@ XML would provide an easy to extend format for both Registry and auto-documentat
 	<var_struct name="mesh" time_levs="1">
 		<var name="varName"
 			 type="real"
+			 persistence="persistent"
 			 units="varUnits"
-			 dimensions="( dim1 dim2 dim3 )"
+			 dimensions="dim1 dim2 dim3"
 			 missing_value="-1e34"
-			 long_name="longVariableName"
-			 short_name="shortVarName"
 			 description="Description of Variable"
+			 streams="stream1;stream2;stream3"
 			 />
 		... more vars ...
 	</var_struct>
 	<nml_record name="record1">
 		<nml_option name="config_option1"
 					type="logical"
+					description="Description of namelist option``
 					default_value=".true."
 					possible_values=".true. or .false."
-					nml_group="group1"
 					/>
 		... more namelist options ...
 	</nml_record>
@@ -219,7 +208,8 @@ This format will be assumed for the remainder of this document.
 Date last modified: 02/15/13 \\
 Contributors: (Doug Jacobsen) \\
 
-Proposed it the use of an additional namelist file. This namelist file would be
+\subsection{Option 1}
+Proposed is the use of an additional namelist file. This namelist file would be
 called something like namelist.input.io. It would remove the burden of I/O
 configuration from the current namelist.input, and provide the user an easy to
 configure I/O layer. The proposed format is as follows.
@@ -262,6 +252,48 @@ At run-time, this new namelist file would be parsed by the I/O layer and handle
 the addition and removal of fields from streams. It would also handle the
 addition of field level attributes to the stream output file (if it's an output
 stream).
+
+\subsubsection{Pros}
+\begin{itemize}
+	\item Highly configurable
+	\item Easily extensible
+\end{itemize}
+\subsubsection{Cons}
+\begin{itemize}
+	\item Large namelist file to modify
+	\item Potentially difficult to determine what variables are part of a stream.
+\end{itemize}
+
+\subsection{Option 2}
+An alternative layout for these namelist files is listed below:
+{\small
+\begin{lstlisting}
+&stream_name1
+	config_stream_name1_interval = '00_01:00:00'
+	config_stream_name1_prefix = 'stream1.nc'
+	config_stream_name1_frames_per_file = 1000
+	config_stream_name1_type = 'OUTPUT'
+	config_stream_name1_field_name1_stream_name1 = .true. or .false.
+	... more fields to be configured in this stream ...
+/
+\end{lstlisting}
+}
+
+The list of fields in the stream could simply be the fields that are on by
+default as specified in Registry for a particular stream, or it could be a list
+of all of the fields to allow a user to somewhat easily modify the fields at
+runtime.
+
+\subsubsection{Pros}
+\begin{itemize}
+	\item Easily configurable
+	\item Easier to see what variables are part of a stream
+\end{itemize}
+\subsubsection{Cons}
+\begin{itemize}
+	\item More difficult to extend for other projects (Time averaging, or moments)
+\end{itemize}
+
 
 \section{Implementation: Stream handler}
 Date last modified: 02/15/13 \\
