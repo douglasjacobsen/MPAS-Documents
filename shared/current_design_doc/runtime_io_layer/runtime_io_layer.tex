@@ -33,7 +33,7 @@
 
 \begin{document}
 
-\title{Run-Time I/O Layer and Auto-Documentation of Users Guide: \\
+\title{Run-Time I/O Layer: \\
 Requirements and Design}
 \author{MPAS Development Team}
 
@@ -44,260 +44,159 @@ Requirements and Design}
 
 \chapter{Summary}
 
-This document describes the requirements and design of two projects that share
-implementation details.
+This document describes the requirements and design for creating a run-time
+configurable I/O layer.  This I/O layer will be used to add and remove fields
+from I/O streams at run-time rather than at build time. 
 
-The first of these two projects is creating a run-time configurable I/O layer.
-This I/O layer will be used to add and remove fields from I/O streams at
-run-time rather than at build time. 
+Before begining the discussion of requirements, a concept of I/O streams needs
+to be introduced. An I/O stream is fully described by the following information:
 
-The second project is the creation of a standardized Registry format that
-allows the documentation of variables, namelist options, dimensions, and
-streams to all be housed under the Registry files.
-
-Details related to both of these will be in the coming sections.
-
+\begin{itemize}
+	\item A set of variables from the model
+	\item A frequency describing how often the stream should be used
+	\item A templated filename
+	\item A direction (Input / Output / Off)
+	\item An identified
+	\item A number of frames per file
+\end{itemize}
 
 %-----------------------------------------------------------------------
 
 \chapter{Requirements}
 
-This chapter lays out the requirements for both projects. From the requirements one can see the overlap between the two.
-
-\section{Run-time I/O Layer}
-\subsection{Requirement: Variables can be added/removed from I/O streams at run-time}
+This chapter lays out the requirements the run-time I/O layer.
+\section{Requirement: Variables can be added/removed from I/O streams at run-time}
 Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
 The run-time configurable I/O layer should provide the ability for modification
 of I/O streams at run time, as opposed to the current structure where it's at
 compile time.
 
-\subsection{Requirement: Ability to create new streams}
+This includes any persistent variable defined in registry.
+
+\section{Requirement: Ability to create new streams}
 Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
 The new I/O layer should make the creation of a new stream available to a
 developer/user. Although it would be preferred to have stream creation possible
 at run-time, it is not specified when during the build/run time streams need to
 be defined. Simply that they need to be able to be defined at some point.
 
-\subsection{Requirement: Ease of use for users}
-Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Presently there are only four streams allowed by a user, and these streams have
+to be modifed at build time.
 
-The format of the I/O layer configuration files should be easy to use for
-developers/users of the MPAS framework.
+\section{Requirement: Package Streams}
+Date last modified: 12/03/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
-\section{Auto Documentation}
+A stream must be allowed to be attached to a package. Meaning, if the package is disabled at runtime, the stream will be completely disabled at runtime as well.
 
-\subsection{Requirement: CF Compliant Output}
-Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+\section{Requirement: Required Streams}
+Date last modified: 12/03/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
-Although Registry makes adding and removing fields easy currently, it's
-difficult to define attributes that should be added to an output file or field. \\
+There are three streams that will be defined by default. These are the mesh,
+initial condition, and the restart streams. Core developers should be able to
+fully describe these, as these are streams that are required to make a core run
+successfully.
 
-This requirement would make us re-evaluate how Registry looks to users and
-works behind to scenes to make CF compliance an easier thing to achieve. \\
+These streams are not allowed to be modified at run-time.
 
-\subsection{Requirement: Built-in Documentation}
-Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+\section{Requirement: Default streams defined at build time}
+Date last modified: 12/03/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
-Registry should be modified with the ability to contain additional information
-for namelist options, dimensions, variables, and streams. These should include
-things like units, descriptions, possible values, etc.
+A core must be able to define a default set of streams. These will additionally
+specify the default configuration for the run-time I/O file.
 
-\subsection{Requirement: Auto-documentation generation parser}
-Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Mesh, initial condition, and restart streams must also be defined at build time.
 
-While documentation is something we strive to improve, it's currently a
-daunting task. There is an issue with maintaining documentation, especially of
-Registry entries, in a way that makes it clear to a user what they are.  \\
+\section{Requirement: Flexible stream definitions}
+Date last modified: 12/03/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
-Eventually this information should be placed within a users guide for each
-core, however that task alone is rather large in itself. This requirement would
-make available another parser of the Registry that, given the standardized
-format and additional documentation, would create the LaTeX documentation to be
-included in a users guide. This would make maintaining of that portion of the
-users guide to be significantly easier.\\
+Streams must be allowed to be defined by the union of other persistent
+constructs within a core's registry file.
 
-%-----------------------------------------------------------------------
+These include:
+\begin{itemize}
+	\item Variables (Individual variables, and var\_array constituents)
+	\item Variable arrays (Including all of their constituents)
+	\item Variable structures (Including all of their variables and var\_arrays)
+	\item Packages (Including all variables attached to a given package)
+	\item Streams (Including all variables included in another stream)
+\end{itemize}
+
+Some restrictions are that a stream will not include streams defined within
+another stream. This restriction is to prevent circular dependence problems.
+
+\section{Requirement: Ability to write output streams during initialization}
+Date last modified: 12/03/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
+
+The I/O layer must provide cores the ability to write any/all output streams at the initial time.
+
+\section{Requirement: Descriptive error checking}
+Date last modified: 12/04/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
+
+The I/O layer must provide users with descriptive error messages when configured inappropriately.
+
+For example, the I/O layer must:
+\begin{itemize}
+	\item Warn and continue on a variable in a stream not existing
+	\item Error and fail when attempting to modify required streams (restart/mesh/initial condition)
+	\item Error and fail when using output streams that share a filename template
+	\item Warn when an output stream has no frequency, and write initially
+\end{itemize}
+
+\section{Requirement: Well defined order for reading input streams}
+Date last modified: 12/04/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
+
+The I/O layer must define an order when reading input streams. For example, the
+first two streams read in a model run are the mesh stream, followed by the
+initial condition stream. After these have been read, the run-time defined
+input streams can be read in the order they are defined in the run-time
+configuration file.
+
+This allows cores to anticipate which stream would overwrite another stream,
+assuming they share variables.
+
+\section{Requirement: Ability to read input streams only on initialization}
+Date last modified: 12/04/2013 \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
+
+Input streams must provide the ability to only be read upon initialization.
+
 
 \chapter{Design and Implementation}
 
-\section{Implementation: CF Compliance and Additional Documentation in Registry}
+\section{Implementation: Configuration format}
 Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
-The Registry format needs to be extended to allow additional fields and
-attributes to be written in the Registry file. This allows developers to write
-down documentation in a single place, and have parsers propagate those changes
-through the rest of the required files. \\
+The format for configuring run-time I/O options will be specified in XML
+format. This file will be merged with the namelist file to provide users a
+single file to configure all aspects of a model run.
 
-Parsers can include documentation and namelist generation tools. This causes
-maintenance of documentation and namelists to be a significantly easier task.
-But requires standardized extensions/modifications for Registry. \\
-
-
-% --------------- XML PROPOSAL --------------------
-Proposed is to migrate Registry into an XML based file, and to modify the
-Registry parser to handle XML. While XML is not as simple to write as ASCII
-text, it provides a more structured document that is not driven by the
-formatting of each line. Although Registry is clean and easy to use, it lacks
-the extensions required when discussing CF compliance attributes.
-
-XML would provide an easy to extend format for both Registry and auto-documentation. The proposed format is as follows:
-
-{\small
-\begin{lstlisting}[language=XML]
-<?xml version="1.0"?>
-<registry>
-	<dims>
-		<dim name="dimName"
-			 units="dimUnits"
-			 description="Description of Dimension"
-			 />
-		... more dims ...
-	</dims>
-	<var_struct name="mesh" time_levs="1">
-		<var name="varName"
-			 type="real"
-			 persistence="persistent"
-			 units="varUnits"
-			 dimensions="dim1 dim2 dim3"
-			 missing_value="-1e34"
-			 description="Description of Variable"
-			 streams="stream1;stream2;stream3"
-			 />
-		... more vars ...
-	</var_struct>
-	<nml_record name="record1">
-		<nml_option name="config_option1"
-					type="logical"
-					description="Description of namelist option``
-					default_value=".true."
-					possible_values=".true. or .false."
-					/>
-		... more namelist options ...
-	</nml_record>
-	<streams>
-		<stream name="stream1"
-				name_template="stream1.nc"
-				interval="00_01:00:00"
-				frames="1000"
-				type="output" (Input or Restart)
-				description="I/O Stream 1"
-				/>
-		... more streams ...
-	</streams>
-</registry>
-\end{lstlisting}
-}
-
-This format allows all documentation and Registry related information in a
-single easy to maintain file. The order of the sections (dims, vars,
-nml\_options, streams) does not matter, and neither does the order of the
-attributes for each specific entry. \\
-
-This format will be assumed for the remainder of this document.
-
-\section{Implementation: Easy to use configuration format}
-Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
-
-\subsection{Option 1}
-Proposed is the use of an additional namelist file. This namelist file would be
-called something like namelist.input.io. It would remove the burden of I/O
-configuration from the current namelist.input, and provide the user an easy to
-configure I/O layer. The proposed format is as follows.
-
-{\small
 \begin{lstlisting}
-&stream_name1
-	config_stream_name1_interval = '00_01:00:00'
-	config_stream_name1_prefix = 'stream1.nc'
-	config_stream_name1_frames_per_file = 1000
-	config_stream_name1_type = 'OUTPUT'
-/
-
-... more stream groups, one for each stream
-...	with defaults pulled from Registry.xml
-
-&field_name1
-	config_field_name1_stream_name1 = .true. or .false.
-	config_field_name1_units = 'varUnits'
-	config_field_name1_missing_value = -1e34
-	config_field_name1_long_name = 'longVariableName'
-	config_field_name1_short_name = 'shrtVarNme'
-/
+<stream name="streamA" interval="00_00:00:00" frames="100" filename="infile.%Y.nc"
+        direction="input">
+	<var name="var1"/>
+	<var name="var2"/>
+	<var name="var3"/>
+</stream>
 \end{lstlisting}
-}
 
-In this file, there is a group for each stream, and a group for each variable.
-Each variable has a config option for each stream that controls if it's
-included as part of that stream. \\
-
-This namelist file would not exist in a standard checkout of the trunk, and
-would get generated by Registry at build time. Upon 'make clean', this
-namelist file would be removed, as the streams/variables could change between
-builds. \\
-
-Additionally, the parser of Registry.xml wouldn't perform any operations on
-attributes that it doesn't directly use (like description).
-
-At run-time, this new namelist file would be parsed by the I/O layer and handle
-the addition and removal of fields from streams. It would also handle the
-addition of field level attributes to the stream output file (if it's an output
-stream).
-
-\subsubsection{Pros}
-\begin{itemize}
-	\item Highly configurable
-	\item Easily extensible
-\end{itemize}
-\subsubsection{Cons}
-\begin{itemize}
-	\item Large namelist file to modify
-	\item Potentially difficult to determine what variables are part of a stream.
-\end{itemize}
-
-\subsection{Option 2}
-An alternative layout for these namelist files is listed below:
-{\small
-\begin{lstlisting}
-&stream_name1
-	config_stream_name1_interval = '00_01:00:00'
-	config_stream_name1_prefix = 'stream1.nc'
-	config_stream_name1_frames_per_file = 1000
-	config_stream_name1_type = 'OUTPUT'
-	config_stream_name1_field_name1_stream_name1 = .true. or .false.
-	... more fields to be configured in this stream ...
-/
-\end{lstlisting}
-}
-
-The list of fields in the stream could simply be the fields that are on by
-default as specified in Registry for a particular stream, or it could be a list
-of all of the fields to allow a user to somewhat easily modify the fields at
-runtime.
-
-\subsubsection{Pros}
-\begin{itemize}
-	\item Easily configurable
-	\item Easier to see what variables are part of a stream
-\end{itemize}
-\subsubsection{Cons}
-\begin{itemize}
-	\item More difficult to extend for other projects (Time averaging, or moments)
-\end{itemize}
-
+Using this format, a stream encapsulates a list of variables that will be
+included as part of the stream when reading from or writing to the filename.
 
 \section{Implementation: Stream handler}
 Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
 Although we already have the capability of creating I/O streams, an easy to use
 mpas\_stream\_handler.F module would be created to allow developers access to
@@ -305,7 +204,7 @@ the created streams, and their associated alarms.
 
 \section{Implementation: Auto-documentation parser}
 Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
 Developers will be provided with a parser (probably a python script) of the
 Registry input file, that will generate a default namelist, and documentation
@@ -313,7 +212,7 @@ LaTeX files for use in a users guide.
 
 \section{Potential Implementation: Run-time addition of streams}
 Date last modified: 02/19/13 \\
-Contributors: (Doug Jacobsen) \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
 One possible idea for the run-time addition and removal of streams is to have a
 general IO namelist group in the I/O namelist file. This group would contain
@@ -344,7 +243,7 @@ stream are added to a stream.
 
 \section{Testing and Validation: Run-time I/O Layer}
 Date last modified: 02/15/13 \\
-Contributors: (Doug Jacobsen) \\
+Contributors: (Doug Jacobsen, Michael Duda) \\
 
 
 
