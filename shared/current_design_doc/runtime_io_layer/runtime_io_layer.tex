@@ -48,7 +48,7 @@ This document describes the requirements and design for creating a run-time
 configurable I/O layer.  This I/O layer will be used to add and remove fields
 from I/O streams at run-time rather than at build time. 
 
-Before begining the discussion of requirements, a concept of I/O streams needs
+Before beginning the discussion of requirements, a concept of I/O streams needs
 to be introduced. An I/O stream is fully described by the following information:
 
 \begin{itemize}
@@ -85,7 +85,7 @@ at run-time, it is not specified when during the build/run time streams need to
 be defined. Simply that they need to be able to be defined at some point.
 
 Presently there are only four streams allowed by a user, and these streams have
-to be modifed at build time.
+to be modified at build time.
 
 \section{Requirement: Package Streams}
 Date last modified: 12/03/2013 \\
@@ -225,7 +225,7 @@ streams. In addition to this, streams could be defined as follows:
 /
 \end{lstlisting}
 
-This config\_io\_streams string would be broken up, and each substream (space
+This config\_io\_streams string would be broken up, and each sub-stream (space
 delimited) would represent an independent stream. The namelist parser would then look
 for a group for each stream, and an option under each field group for each
 stream.
@@ -239,6 +239,57 @@ stream are added to a stream.
 
 %-----------------------------------------------------------------------
 
+\chapter{Work list}
+Preparatory Work - Complete by Jan 1 2014
+\begin{itemize}
+	\item Transition to universal mesh type
+	\begin{itemize}
+		\item Required mesh definition and a mesh stream
+	\end{itemize}
+	\item Distinct namelists for each core (Auto-generated at build time)
+	\begin{itemize}
+		\item Auto generate default stream definitions
+	\end{itemize}
+	\item Transition pre-defined streams to new stream definitions in Registry.xml 
+	\begin{itemize}
+		\item Using the new stream layout
+	\end{itemize}
+\end{itemize}
+
+\noindent Deal with namespace conflicts - Complete by April 1 2014 \\
+Overlaps heavily with run-time stream definitions. The implementation of
+run-time stream definitions might require back-tracking to cleanup for this
+purpose, so this is placed ahead of that.
+\begin{itemize}
+	\item Collections
+	\begin{itemize}
+		\item Groups
+		\item Vars
+		\item Namelist options
+	\end{itemize}
+	\item Domain $->$ Core with additional information (like a core identifier)
+	\item Rename mpas\_core, mpas\_core\_run, mpas\_core\_init, mpas\_core\_finalize
+	\item Driver update based on core renaming
+	\item Build system needs to define core type (Function pointers and other related stuff)
+	\item Module variables need to have a context (Might live in the core data structure)
+\end{itemize}
+
+\noindent Run-time configuration of default streams.
+\begin{itemize}
+	\item Generate default run-time stream configuration for pre-defined streams at build time
+	\item Run-time C-XML $->$ Fortran-DDT Translator
+\end{itemize}
+
+\noindent EITHER:\\
+\begin{itemize}
+	\item Deal with "coupler" that handles I/O and communications for multiple cores
+	\item Stream Manager module
+\end{itemize}
+Both would generate new I/O streams at run-time.
+
+\noindent Revisit list of features, and prioritize. More intelligent intervals, start/stop times, logging, etc. \\
+
+\noindent Continue with multiple cores.
 \chapter{Testing}
 
 \section{Testing and Validation: Run-time I/O Layer}
