@@ -33,19 +33,33 @@ understand what makes an MPAS mesh.
 
 \chapter{Definitions and Conventions}
 
-The meshes used by MPAS are centroidal Voronoi tessellations (CVTs), in which MPAS identifies three types of 
-elements: {\it cells}, {\it edges}, and {\it vertices}. {\it Cells} are simply the Voronoi cells in the tessellation, {\it edges} are the boundaries
-between adjacent Voronoi cells, and {\it vertices} are the corners of cells. In MPAS, cells are nominally located at the Voronoi generating points, which, for centroidal Voronoi tessellations, are the mass centoids of the Voronoi cells with respect to a density function, and edges are nominally located at the midpoints of edges. Figure \ref{fig:voronoi} shows three cells with their associated edges and vertices.
+The meshes used by MPAS are Voronoi tessellations (VTs), in which MPAS
+identifies three types of elements: {\it cells}, {\it edges}, and {\it
+vertices}. {\it Cells} are simply the Voronoi cells in the tessellation, {\it
+edges} are the boundaries between adjacent Voronoi cells, and {\it vertices}
+are the corners of cells. In MPAS, cells are nominally located at the Voronoi
+generating points, which, for centroidal Voronoi tessellations, are the mass
+centoids of the Voronoi cells with respect to a density function, and edges are
+nominally located at the midpoints of edges. Figure \ref{fig:voronoi} shows
+three cells with their associated edges and vertices.
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=3.5in]{figures/blank_figure.pdf}
-\caption{Blah.}
+\includegraphics[width=3.5in]{figures/Voronoi.pdf}
+\caption{Three cell Voronoi tessellation with Cells denoted by blue circles, edges by orange triangles, and vertices by red squares.}
 \label{fig:voronoi}
 \end{center}
 \end{figure}
 
-The CVT meshes used by MPAS may be defined on the Cartesian plane or on a sphere. In the case of planar meshes, areas and distances are assumed to be Euclidean, and the mesh is defined on the plane $z=0$. In the case of spherical meshes, areas and distances are computed in spherical geometry; cells, edges, and vertices are constrained to lie on the surface of the sphere, and the sphere is centered at the origin, $(x,y,z)=(0,0,0)$. In all cases, the coordinate systems assumed by MPAS meshes are right-handed. Figure \ref{fig:planar_spherical} provides and illustration of CVT meshes on the Cartesian plane and on the sphere.
+The VT meshes used by MPAS may be defined on the Cartesian plane or on a
+sphere. In the case of planar meshes, areas and distances are assumed to be
+Euclidean, and the mesh is defined on the plane $z=0$. In the case of spherical
+meshes, areas and distances are computed in spherical geometry; cells, edges,
+and vertices are constrained to lie on the surface of the sphere, and the
+sphere is centered at the origin, $(x,y,z)=(0,0,0)$. In all cases, the
+coordinate systems assumed by MPAS meshes are right-handed. Figure
+\ref{fig:planar_spherical} provides and illustration of VT meshes on the
+Cartesian plane and on the sphere.
 
 \begin{figure}[htb]
 \begin{center}
@@ -238,7 +252,7 @@ The following list of fields are required by all MPAS cores, and the MPAS framew
 	\item kiteAreasOnVertex - The intersection area of areaTriangle with each cell that radiates from a given vertex. \\
 		  Dimensions: vertexDegree * nVertices \\
 		  Could be computed internally. 
-	\item coeffs\_reconstruct - Coefficients to reconstruct velocity vectors at cells centers. \\
+	\item coeffs\_reconstruct - Coefficients to reconstruct edge centered velocity vectors at cells centers. \\
 		  Dimensions: 3 * maxEdges * nCells \\
 		  Computed internally. 
 \end{itemize}
