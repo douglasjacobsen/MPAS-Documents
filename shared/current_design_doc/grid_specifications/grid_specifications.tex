@@ -158,10 +158,10 @@ The following list of fields are required by all MPAS cores, and the MPAS framew
 	\item indexToCellID - Global cell ID for all cell centers. \\
 		  Dimensions: nCells
 	\item latEdge - Latitude in radians of all edge locations. Valid range of $-\frac{\pi}{2}$ to $\frac{\pi}{2}$. \\
-		  Dimensions: nEdges
+		  Dimensions: nEdges \\
 		  Could be computed internally. 
 	\item lonEdge - Longitude in radians of all edge locations. Valid range of $0$ to $2*\pi$. \\
-		  Dimensions: nEdges
+		  Dimensions: nEdges \\
 		  Could be computed internally. 
 	\item xEdge - x axis position of all edge locations. \\
 		  Dimensions: nEdges
@@ -172,10 +172,10 @@ The following list of fields are required by all MPAS cores, and the MPAS framew
 	\item indexToEdgeID - Global edge ID for all edge locations. \\
 		  Dimensions: nEdges
 	\item latVertex - Latitude in radians of all cell vertices. Valid range of $-\frac{\pi}{2}$ to $\frac{\pi}{2}$. \\
-		  Dimensions: nVertices
+		  Dimensions: nVertices \\
 		  Could be computed internally. 
 	\item lonVertex - Longitude in radians of all cell vertices. Valid range of $0$ to $2*\pi$. \\
-		  Dimensions: nVertices
+		  Dimensions: nVertices \\
 		  Could be computed internally. 
 	\item xVertex - x axis position of all cell vertices. \\
 		  Dimensions: nVertices
@@ -196,34 +196,34 @@ The following list of fields are required by all MPAS cores, and the MPAS framew
 	\item edgesOnEdge - Edge indices that are used to reconstruct tangential velocities. \\
 		  Dimensions: maxEdges2 * nEdges
 	\item weightsOnEdge - Weights used to reconstruct tangential velocities. \\
-		  Dimensions: maxEdges2 * nEdges
+		  Dimensions: maxEdges2 * nEdges \\
 		  Could be computed internally. 
 	\item dvEdge - Distance in meters between the vertices that saddle a given edge. \\
-		  Dimensions: nEdges
+		  Dimensions: nEdges \\
 		  Could be computed internally. 
 	\item dcEdge - Distance in meters between the cells that saddle a given edge. \\
-		  Dimensions: nEdges
+		  Dimensions: nEdges \\
 		  Could be computed internally. 
 	\item angleEdge - Angle in radians an edge's normal vector makes with the local eastward direction. \\
-		  Dimensions: nEdges
+		  Dimensions: nEdges \\
 		  Could be computed internally. 
 	\item areaCell - Area in square meters for a given cell of the primary mesh. \\
-		  Dimensions: nCells
+		  Dimensions: nCells \\
 		  Could be computed internally. 
 	\item areaTriangle - Area in square meters for a given triangle of the dual mesh. \\
-		  Dimensions: nVertices
+		  Dimensions: nVertices \\
 		  Could be computed internally. 
 	\item edgeNormalVectors - Cartesian coordinates for the normal vector of a given edge. \\
-		  Dimensions: 3 * nEdges
+		  Dimensions: 3 * nEdges \\
 		  Could be computed internally. 
 	\item edgeTangentVectors - Cartesian coordinates for the tangent vector of a given edge. \\
-		  Dimensions: 3 * nEdges
+		  Dimensions: 3 * nEdges \\
 		  Could be computed internally. 
 	\item localVerticalUnitVectors - Unit surface normal vectors defined at a given cell. \\
-		  Dimensions: 3 * nCells
+		  Dimensions: 3 * nCells \\
 		  Could be computed internally. 
 	\item cellTangentPlane - The two vectors that define a tangent plane at a given cell. \\
-		  Dimensions: 3 * 2 * nCells
+		  Dimensions: 3 * 2 * nCells \\
 		  Could be computed internally. 
 	\item cellsOnCell - Cell indices that surround a given cell. \\
 		  Dimensions: maxEdges * nCells
@@ -236,10 +236,10 @@ The following list of fields are required by all MPAS cores, and the MPAS framew
 	\item cellsOnVertex - Cell indices that radiate from a given vertex. \\
 		  Dimensions: vertexDegree * nVertices
 	\item kiteAreasOnVertex - The intersection area of areaTriangle with each cell that radiates from a given vertex. \\
-		  Dimensions: vertexDegree * nVertices
+		  Dimensions: vertexDegree * nVertices \\
 		  Could be computed internally. 
 	\item coeffs\_reconstruct - Coefficients to reconstruct velocity vectors at cells centers. \\
-		  Dimensions: 3 * maxEdges * nCells
+		  Dimensions: 3 * maxEdges * nCells \\
 		  Computed internally. 
 \end{itemize}
 
