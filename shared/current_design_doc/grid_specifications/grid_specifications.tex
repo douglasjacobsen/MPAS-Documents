@@ -3,6 +3,7 @@
 \usepackage{epsf,amsfonts}
 \usepackage{graphicx}
 \usepackage{mathtools}
+\usepackage{subfigure}
 
 \setlength{\topmargin}{0in}
 \setlength{\headheight}{0in}
@@ -63,8 +64,9 @@ Cartesian plane and on the sphere.
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=3.5in]{figures/blank_figure.pdf}
-\caption{Blah.}
+\subfigure[Planar Voronoi tessellation]{\includegraphics[scale=0.4]{figures/planar_vt.png}}
+\subfigure[Spherical Voronoi tessellation]{\includegraphics[scale=0.4]{figures/spherical_vt.png}}
+\caption{Examples of Voronoi tessellations}
 \label{fig:planar_spherical}
 \end{center}
 \end{figure}
@@ -152,6 +154,19 @@ At a given edge, two vectors $\vec{u}$ and $\vec{v}$ are defined as the normal a
 
 %-----------------------------------------------------------------------
 
+
+\section{Description of boundaries}
+
+Some meshes require the ability to describe boundaries. These could describe
+the interface between two different meshes, or active and inactive cells. For
+example, the boundary between ocean and land, or a nested grid and it's global
+counterpart.
+
+The easiest way to decribe boundaries is through the edges presently. If an
+edge is intended to track a boundary, i.e. lies between active and inactive
+cells, this can be specified through cellsOnEdge. If CellsOnEdge contains a
+value of 0 for either of and edges two cells, that means it is a boundary edge.
+
 \chapter{Requirements}
 
 The following list of fields are required by all MPAS cores, and the MPAS framework assumes these fields exist.
@@ -199,16 +214,26 @@ The following list of fields are required by all MPAS cores, and the MPAS framew
 		  Dimensions: nVertices
 	\item indexToVertexID - Global vertex ID for all cell vertices. \\
 		  Dimensions: nVertices
-	\item cellsOnEdge - Cell indices that saddle a given edge. \\
-		  Dimensions: 2 * nEdges
 	\item nEdgesOnCell - Number of edges on a given cell. \\
 		  Dimensions: maxEdges * nCells
 	\item nEdgesOnEdge - Number of edges on a given edge. Used to reconstruct tangential velocities. \\
 		  Dimensions: maxEdges2 * nEdges
+	\item cellsOnEdge - Cell indices that saddle a given edge. \\
+		  Dimensions: 2 * nEdges
 	\item edgesOnCell - Edge indices that surround a given cell. \\
 		  Dimensions: maxEdges * nCells
 	\item edgesOnEdge - Edge indices that are used to reconstruct tangential velocities. \\
 		  Dimensions: maxEdges2 * nEdges
+	\item cellsOnCell - Cell indices that surround a given cell. \\
+		  Dimensions: maxEdges * nCells
+	\item verticesOnCell - Vertex indices that surround a given cell. \\
+		  Dimensions: maxEdges * nCells
+	\item verticesOnEdge - Vertex indices that saddle a given edge. \\
+		  Dimensions: 2 * nEdges
+	\item edgesOnVertex - Edge indices that radiate from a given vertex. \\
+		  Dimensions: vertexDegree * nVertices
+	\item cellsOnVertex - Cell indices that radiate from a given vertex. \\
+		  Dimensions: vertexDegree * nVertices
 	\item weightsOnEdge - Weights used to reconstruct tangential velocities. \\
 		  Dimensions: maxEdges2 * nEdges \\
 		  Could be computed internally. 
@@ -227,34 +252,11 @@ The following list of fields are required by all MPAS cores, and the MPAS framew
 	\item areaTriangle - Area in square meters for a given triangle of the dual mesh. \\
 		  Dimensions: nVertices \\
 		  Could be computed internally. 
-	\item edgeNormalVectors - Cartesian coordinates for the normal vector of a given edge. \\
-		  Dimensions: 3 * nEdges \\
-		  Could be computed internally. 
-	\item edgeTangentVectors - Cartesian coordinates for the tangent vector of a given edge. \\
-		  Dimensions: 3 * nEdges \\
-		  Could be computed internally. 
-	\item localVerticalUnitVectors - Unit surface normal vectors defined at a given cell. \\
-		  Dimensions: 3 * nCells \\
-		  Could be computed internally. 
-	\item cellTangentPlane - The two vectors that define a tangent plane at a given cell. \\
-		  Dimensions: 3 * 2 * nCells \\
-		  Could be computed internally. 
-	\item cellsOnCell - Cell indices that surround a given cell. \\
-		  Dimensions: maxEdges * nCells
-	\item verticesOnCell - Vertex indices that surround a given cell. \\
-		  Dimensions: maxEdges * nCells
-	\item verticesOnEdge - Vertex indices that saddle a given edge. \\
-		  Dimensions: 2 * nEdges
-	\item edgesOnVertex - Edge indices that radiate from a given vertex. \\
-		  Dimensions: vertexDegree * nVertices
-	\item cellsOnVertex - Cell indices that radiate from a given vertex. \\
-		  Dimensions: vertexDegree * nVertices
 	\item kiteAreasOnVertex - The intersection area of areaTriangle with each cell that radiates from a given vertex. \\
 		  Dimensions: vertexDegree * nVertices \\
 		  Could be computed internally. 
-	\item coeffs\_reconstruct - Coefficients to reconstruct edge centered velocity vectors at cells centers. \\
-		  Dimensions: 3 * maxEdges * nCells \\
-		  Computed internally. 
+	\item meshDensity - The value of the generating density function at each cell center. \\
+		  Dimensions: nCells
 \end{itemize}
 
 
